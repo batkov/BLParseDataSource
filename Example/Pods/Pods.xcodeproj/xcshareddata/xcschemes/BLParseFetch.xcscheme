@@ -14,7 +14,7 @@
             buildForArchiving = "YES">
             <BuildableReference
                BuildableIdentifier = 'primary'
-               BlueprintIdentifier = '6C8299D9961FD4B4DB7D0E3B'
+               BlueprintIdentifier = '5B5EF3AEBE1057A425043520'
                BlueprintName = 'BLParseFetch'
                ReferencedContainer = 'container:Pods.xcodeproj'
                BuildableName = 'BLParseFetch.framework'>

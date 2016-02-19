@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = "BLParseFetch"
-  s.version          = "0.1.1"
+  s.version          = "0.1.2"
   s.summary          = "BLParseFetch is implementation of BLFetch(as part of BLListDataSource) for Parse Platform"
 
 # This description is used to generate tags and improve search results.
@@ -25,7 +25,7 @@ Pod::Spec.new do |s|
   s.author           = { "Hariton Batkov" => "batkov@i.ua" }
   s.source           = { :git => "https://github.com/batkov/BLParseFetch.git", :tag => s.version.to_s }
 
-  s.platform     = :ios, '8.0'
+  s.platform     = :ios, '7.0'
   s.requires_arc = true
 
   s.source_files = 'Pod/Classes/**/*'

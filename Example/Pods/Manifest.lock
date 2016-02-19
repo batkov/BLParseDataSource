@@ -1,6 +1,6 @@
 PODS:
-  - BLListDataSource (0.9.0)
-  - BLParseFetch (0.1.0):
+  - BLListDataSource (0.9.2)
+  - BLParseFetch (0.1.2):
     - BLListDataSource
     - Parse
   - Bolts/Tasks (1.6.0)
@@ -15,8 +15,8 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  BLListDataSource: 3c3ba3f1209a037aa43e35279c5377868795cfdb
-  BLParseFetch: 6975d1d4fd3b38cd28a47f79230c993d6d788b90
+  BLListDataSource: 1c1c2878dc8b9143d93fbf31aa2168256163670d
+  BLParseFetch: d58fe08077a438ba5f0c0c7ee909875d44671326
   Bolts: f52a250053bb517ca874523c3913776359ab3def
   Parse: de2c52a9a1421b91ae7594ab8ce191afd184f19b
 

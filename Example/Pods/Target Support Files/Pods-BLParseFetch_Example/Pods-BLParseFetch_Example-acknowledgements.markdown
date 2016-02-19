@@ -28,7 +28,7 @@ SOFTWARE.
 
 ## BLParseFetch
 
-Copyright (c) 2016 Hariton Batkov <hariton.batkov@p-product.com>
+Copyright (c) 2016 Hariton Batkov <batkov@i.ua>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
