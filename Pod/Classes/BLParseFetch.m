@@ -26,6 +26,14 @@
 
 @implementation BLParseFetch
 
+- (instancetype) init {
+    if (self = [super init]) {
+        self.pinName = PFObjectDefaultPin;
+        self.offlineFetchAvailable = [Parse isLocalDatastoreEnabled];
+    }
+    return self;
+}
+
 - (void) fetchOnline:(BLPaging *__nullable) paging callback:(BLIdResultBlock __nonnull)callback {
     if (self.cloudFuncName) {
         [self fetchFromCloudOnline:paging callback:callback];
@@ -60,11 +68,38 @@
 
 #pragma mark - Offline
 - (void) fetchOffline:(BLIdResultBlock __nonnull)block {
-    // TODO
+    if (!self.offlineFetchAvailable) {
+        return;
+    }
+    NSAssert(self.offlineQueriesBlock, @"You need to set offlineQueriesBlock if -offlineFetchAvailable is YES");
+    NSArray<PFQuery *> * queries = self.offlineQueriesBlock();
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
+        NSMutableArray * array = [NSMutableArray array];
+        for (PFQuery * query in queries) {
+            [query fromPinWithName:[self pinName]];
+            NSArray * fetchResult = [query findObjects];
+            if (fetchResult) {
+                [array addObjectsFromArray:fetchResult];
+            }
+        }
+        if (block) {
+            block([NSArray arrayWithArray:array], nil);
+        }
+    });
 }
 
 - (void) storeItems:(BLBaseFetchResult *__nullable)fetchResult {
-    // TODO
+    if (!self.offlineFetchAvailable) {
+        return;
+    }
+    NSMutableArray * items = [NSMutableArray array];
+    for (NSArray * section in fetchResult.sections) {
+        [items addObjectsFromArray:section];
+    }
+    NSString * pinName = [self pinName];
+    [PFObject unpinAllObjectsInBackgroundWithName:pinName block:^(BOOL succeeded, NSError * error) {
+        [PFObject pinAllInBackground:items withName:pinName];
+    }];
 }
 
 @end

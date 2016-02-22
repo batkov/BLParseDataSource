@@ -39,6 +39,8 @@ typedef NSArray<PFQuery *> * (^BLParseOfflineQueriesBlock)();
 @property (nonatomic, copy) BLParseQueryBlock queryBlock;
 
 #pragma mark - Offline from queries
+@property (nonatomic, assign) BOOL offlineFetchAvailable; // Default is [Parse isLocalDatastoreEnabled]
+@property (nonatomic, strong) NSString * pinName; // PFObjectDefaultPin by default
 @property (nonatomic, copy) BLParseOfflineQueriesBlock offlineQueriesBlock;
 
 
