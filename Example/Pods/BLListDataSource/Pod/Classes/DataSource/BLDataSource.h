@@ -34,10 +34,12 @@ typedef NS_ENUM(NSInteger, BLDataSourceState) {
 };
 
 @protocol BLDataSourceDelegate;
+typedef void(^BLDataSourceStateBlock)(BLDataSourceState state);
 
 @interface BLDataSource : NSObject
 
 @property (weak, nonatomic) id <BLDataSourceDelegate> delegate;
+@property (copy, nonatomic) BLDataSourceStateBlock stateChangedBlock;
 
 @property (assign, nonatomic, readonly) BLDataSourceState state;
 @property (strong, nonatomic, readonly) NSError *lastError;

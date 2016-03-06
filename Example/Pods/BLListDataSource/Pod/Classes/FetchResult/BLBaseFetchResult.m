@@ -67,7 +67,7 @@
 }
 
 - (void) parseItemsList:(NSArray *) array {
-    // Do nothing. For subclassing
+    self.items = [NSArray arrayWithArray:array];
 }
 
 @end

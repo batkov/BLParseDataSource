@@ -14,10 +14,10 @@
             buildForArchiving = "YES">
             <BuildableReference
                BuildableIdentifier = 'primary'
-               BlueprintIdentifier = 'C9BE0D11EF636BA81CA7C7E3'
-               BlueprintName = 'BLParseFetch'
+               BlueprintIdentifier = 'EF12A29FFDD60D14222A5A26'
+               BlueprintName = 'BLListDataSource'
                ReferencedContainer = 'container:Pods.xcodeproj'
-               BuildableName = 'BLParseFetch.framework'>
+               BuildableName = 'BLListDataSource.framework'>
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>

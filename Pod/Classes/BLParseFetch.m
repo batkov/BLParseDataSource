@@ -60,9 +60,7 @@
         query.skip = paging.skip;
         query.limit = paging.limit;
     }
-    [query findObjectsInBackgroundWithBlock:^(NSArray * _Nullable objects, NSError * _Nullable error) {
-        block(objects, error);
-    }];
+    [query findObjectsInBackgroundWithBlock:block];
 }
 
 
@@ -75,20 +73,22 @@
     NSArray<PFQuery *> * queries = self.offlineQueriesBlock();
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
         NSMutableArray * array = [NSMutableArray array];
+        NSError * error = nil;
         for (PFQuery * query in queries) {
             [query fromPinWithName:[self pinName]];
-            NSArray * fetchResult = [query findObjects];
+            NSArray * fetchResult = [query findObjects:&error];
             if (fetchResult) {
                 [array addObjectsFromArray:fetchResult];
             }
         }
         if (block) {
-            block([NSArray arrayWithArray:array], nil);
+            block([NSArray arrayWithArray:array], error);
         }
     });
 }
 
-- (void) storeItems:(BLBaseFetchResult *__nullable)fetchResult {
+- (void) storeItems:(BLBaseFetchResult *__nullable)fetchResult
+           callback:(BLBoolResultBlock _Nonnull)callback {
     if (!self.offlineFetchAvailable) {
         return;
     }
@@ -98,7 +98,7 @@
     }
     NSString * pinName = [self pinName];
     [PFObject unpinAllObjectsInBackgroundWithName:pinName block:^(BOOL succeeded, NSError * error) {
-        [PFObject pinAllInBackground:items withName:pinName];
+        [PFObject pinAllInBackground:items withName:pinName block:callback];
     }];
 }
 

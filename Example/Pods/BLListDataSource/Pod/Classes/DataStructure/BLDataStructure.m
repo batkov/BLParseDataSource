@@ -145,4 +145,30 @@
     return sourceArray; // For subclassing
 }
 
+- (NSIndexPath *) indexPathForObject:(id <BLDataObject>) item {
+    __block NSIndexPath * indexPathToReturn = nil;
+    [self enumerateObjectsUsingBlock:^(id<BLDataObject> obj, NSIndexPath *indexPath, BOOL *stop) {
+        if (obj == item
+            || [[obj objectId] isEqualToString:[item objectId]]) {
+            indexPathToReturn = indexPath;
+            *stop = YES;
+        }
+    }];
+    return indexPathToReturn;
+}
+
+#pragma mark -
+- (void)enumerateObjectsUsingBlock:(void (^)(id<BLDataObject> obj, NSIndexPath * indexPath, BOOL *stop))block {
+    BOOL stop = NO;
+    for (int section = 0; section < [self sectionsCount]; section++) {
+        for (int row = 0; row < [self itemsCountForSection:section]; row++) {
+            NSIndexPath * indexPath = [NSIndexPath indexPathForRow:row inSection:section];
+            id <BLDataObject> obj = [self objectForIndexPath:indexPath];
+            
+            block(obj, indexPath, &stop);
+            if (stop)
+                break;
+        }
+    }
+}
 @end

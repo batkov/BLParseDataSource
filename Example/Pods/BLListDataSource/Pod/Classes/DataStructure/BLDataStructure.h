@@ -47,4 +47,9 @@
 - (void) insertItem:(id) item toSection:(NSUInteger) section;
 - (NSUInteger) dataSize;
 
+- (NSIndexPath *) indexPathForObject:(id <BLDataObject>) item;
+
+#pragma mark -
+- (void)enumerateObjectsUsingBlock:(void (^)(id<BLDataObject> obj, NSIndexPath * indexPath, BOOL *stop))block;
+
 @end
