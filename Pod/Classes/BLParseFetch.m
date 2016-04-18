@@ -92,13 +92,24 @@
     if (!self.offlineFetchAvailable) {
         return;
     }
-    NSMutableArray * items = [NSMutableArray array];
+    NSMutableArray * itemsToSave = [NSMutableArray array];
     for (NSArray * section in fetchResult.sections) {
-        [items addObjectsFromArray:section];
+        [itemsToSave addObjectsFromArray:section];
     }
     NSString * pinName = [self pinName];
-    [PFObject unpinAllObjectsInBackgroundWithName:pinName block:^(BOOL succeeded, NSError * error) {
-        [PFObject pinAllInBackground:items withName:pinName block:callback];
+    [self fetchOffline:^(id  _Nullable object, NSError * _Nullable error) {
+        if (error || ![object isKindOfClass:[NSArray class]]) {
+            [PFObject pinAllInBackground:itemsToSave withName:pinName block:callback];
+            return;
+        }
+        NSArray * itemsToRemove = (NSArray *) object;
+        [PFObject unpinAllInBackground:itemsToRemove
+                              withName:pinName
+                                 block:^(BOOL succeeded, NSError * _Nullable error) {
+            
+            [PFObject pinAllInBackground:itemsToSave withName:pinName block:callback];
+        }];
+        
     }];
 }
 
