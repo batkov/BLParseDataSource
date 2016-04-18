@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = "BLParseFetch"
-  s.version          = "0.2.1"
+  s.version          = "0.2.2"
   s.summary          = "BLParseFetch is implementation of BLFetch(as part of BLListDataSource) for Parse Platform"
 
 # This description is used to generate tags and improve search results.
