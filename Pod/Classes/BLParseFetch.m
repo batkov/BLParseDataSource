@@ -30,6 +30,7 @@
     if (self = [super init]) {
         self.pinName = PFObjectDefaultPin;
         self.offlineFetchAvailable = [Parse isLocalDatastoreEnabled];
+        self.offlineStoreAvailable = [Parse isLocalDatastoreEnabled];
     }
     return self;
 }
@@ -89,7 +90,7 @@
 
 - (void) storeItems:(BLBaseFetchResult *__nullable)fetchResult
            callback:(BLBoolResultBlock _Nonnull)callback {
-    if (!self.offlineFetchAvailable) {
+    if (!self.offlineStoreAvailable) {
         return;
     }
     NSMutableArray * itemsToSave = [NSMutableArray array];
