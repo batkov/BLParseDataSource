@@ -93,10 +93,7 @@
     if (!self.offlineStoreAvailable) {
         return;
     }
-    NSMutableArray * itemsToSave = [NSMutableArray array];
-    for (NSArray * section in fetchResult.sections) {
-        [itemsToSave addObjectsFromArray:section];
-    }
+    NSArray * itemsToSave = [self itemsToSaveFrom:fetchResult];
     NSString * pinName = [self pinName];
     if (!self.offlineFetchAvailable) {
         [self storeItemsInternal:itemsToSave callback:callback];
@@ -122,5 +119,31 @@
     [PFObject pinAllInBackground:itemsToSave withName:[self pinName] block:callback];
 }
 
+- (NSArray *) itemsToSaveFrom:(BLBaseFetchResult *) fetchResult {
+    NSMutableArray * itemsToSave = [NSMutableArray array];
+    for (NSArray * section in fetchResult.sections) {
+        for (id<BLDataObject> dataObject in section) {
+            BOOL gotArray = NO;
+            if ([dataObject respondsToSelector:@selector(objectsToStore)]) {
+                NSArray * array = [dataObject objectsToStore];
+                if (array) {
+                    [itemsToSave addObjectsFromArray:array];
+                    continue;
+                }
+            }
+            
+            if ([dataObject respondsToSelector:@selector(objectToStore)]) {
+                id theObject = [dataObject objectToStore];
+                if (theObject) {
+                    [itemsToSave addObject:theObject];
+                    continue;
+                }
+            }
+            
+            [itemsToSave addObject:dataObject];
+        }
+    }
+    return [NSArray arrayWithArray:itemsToSave];
+}
 
 @end
