@@ -123,7 +123,6 @@
     NSMutableArray * itemsToSave = [NSMutableArray array];
     for (NSArray * section in fetchResult.sections) {
         for (id<BLDataObject> dataObject in section) {
-            BOOL gotArray = NO;
             if ([dataObject respondsToSelector:@selector(objectsToStore)]) {
                 NSArray * array = [dataObject objectsToStore];
                 if (array) {
