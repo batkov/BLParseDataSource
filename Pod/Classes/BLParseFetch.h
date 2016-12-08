@@ -22,7 +22,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#import "BLBaseFetch.h"
+@import BLListDataSource;
 #import <Parse/Parse.h>
 
 typedef NSDictionary * (^BLParseCloudParamsBlock)(BLPaging * paging);
