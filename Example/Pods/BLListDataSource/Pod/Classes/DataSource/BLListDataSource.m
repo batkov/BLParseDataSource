@@ -35,6 +35,7 @@
     NSAssert(fetch, @"You need to provide fetch");
     if (self = [super init]) {
         self.pagingEnabled = YES;
+        self.autoAdvance = NO;
         self.fetch = fetch;
         self.fetchResultBlock = ^(id object, BOOL isLocal) {
             if (isLocal) {
@@ -68,6 +69,9 @@
         if (error) {
             // TODO implement loging ?
         } else if (!selff.dataStructure || refresh) {
+            if (selff.fetchMode == BLFetchModeOfflineOnly && [selff shouldClearList]) {
+                selff.dataStructure = nil;
+            }
             BLBaseFetchResult * result = [selff createFetchResultForLocalObject:object];
             [selff processFetchResult:result];
         }
@@ -111,7 +115,7 @@
 }
 
 - (void) runRequest {
-    if (self.fetchMode == BLFetchModeOnfflineOnly) {
+    if (self.fetchMode == BLFetchModeOfflineOnly) {
         [self fetchOfflineData:YES];
         return;
     }
@@ -154,6 +158,19 @@
     [self processFetchResult:fetchResult];
     [self updatePagingFlagsForListSize];
     [self contentLoaded:nil];
+    [self loadNextPageIfAutoAdvance];
+}
+
+- (void) loadNextPageIfAutoAdvance {
+    if (!self.autoAdvance) {
+        return;
+    }
+    if (!self.pagingEnabled) {
+        return;
+    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self loadNextPageIfNeeded];
+    });
 }
 
 - (void) startContentLoading {
@@ -204,6 +221,17 @@
 }
 
 - (BLDataStructure *) dataStructureFromFetchResult:(BLBaseFetchResult *) fetchResult {
+    if (self.dataStructreBlock) {
+        BLDataStructure * dataStructure = self.dataStructreBlock(fetchResult);
+        NSAssert([dataStructure isKindOfClass:[BLDataStructure class]], @"Wrong class or nil");
+        return dataStructure;
+    }
+    if (self.dataSortingBlock) {
+        BLDataSorting sorting = self.dataSortingBlock(fetchResult);
+        return [BLDataStructure dataStructureWithFetchResult:fetchResult
+                                                     sorting:sorting
+                                                       block:self.customSortingBlock];
+    }
     return [BLDataStructure dataStructureWithFetchResult:fetchResult];
 }
 

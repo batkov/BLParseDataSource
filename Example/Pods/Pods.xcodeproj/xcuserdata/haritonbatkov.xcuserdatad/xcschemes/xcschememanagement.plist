@@ -29,40 +29,30 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
-		<key>Pods-BLParseFetch_Tests.xcscheme</key>
-		<dict>
-			<key>isShown</key>
-			<false/>
-		</dict>
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
-		<key>1540C828E0DCC3D3F73763398B8EE123</key>
+		<key>14993D89EE4EE7B2323A5573FFDB4799</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>44ACC2DC717FAF696CF748BEFB8538D5</key>
+		<key>2B3CEBFEA56F65E886E536B59BB0FDF6</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>63373855DA7B4D23031B067342CEFEBA</key>
+		<key>8E37BA1C1A7EF71C750A33DF05EB5400</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>93EF338046E9D7E70144A1E90B22DF54</key>
+		<key>902B54C67A255F0CD66FE3586017EAFD</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>9F6D001CDF62925590E4CBB4FA43E7C1</key>
-		<dict>
-			<key>primary</key>
-			<true/>
-		</dict>
-		<key>DF019F55C344D91B24A84F1B206B3D96</key>
+		<key>98ADB09A5FC0CA011B512560C9963F2C</key>
 		<dict>
 			<key>primary</key>
 			<true/>

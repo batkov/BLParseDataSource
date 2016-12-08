@@ -29,7 +29,19 @@
 @implementation BLDataStructure
 
 + (instancetype) dataStructureWithFetchResult:(BLBaseFetchResult *) fetchResult {
+    return [self dataStructureWithFetchResult:fetchResult sorting:BLDataSortingCreatedAt];
+}
+
++ (instancetype) dataStructureWithFetchResult:(BLBaseFetchResult *) fetchResult sorting:(BLDataSorting) sorting {
+    return [self dataStructureWithFetchResult:fetchResult
+                                      sorting:sorting
+                                        block:nil];
+}
+
++ (instancetype) dataStructureWithFetchResult:(BLBaseFetchResult *) fetchResult sorting:(BLDataSorting) sorting block:(BLCustomSortingBlock) block {
     BLDataStructure * dataStructure = [self new];
+    dataStructure.sorting = sorting;
+    dataStructure.customSortingBlock = block;
     [dataStructure processFetchResult:fetchResult];
     return dataStructure;
 }
@@ -119,26 +131,41 @@
     if (!items)
         return nil;
     NSArray<id<BLDataObject>> * oldItems = [self.sections count] <= section ? @[] : self.sections[section];
-    NSArray<id<BLDataObject>> * array = [NSArray arrayWithArray:oldItems ? [oldItems arrayByAddingObjectsFromArray:items] : items];
-    NSArray<id<BLDataObject>> * arryWithoutDuplicates = [[NSSet setWithArray:array] allObjects];
+    
+    NSMutableArray * newItems = [NSMutableArray arrayWithArray:oldItems];
+    for (id object in items) {
+        if (![oldItems containsObject:object]) {
+            [newItems addObject:object];
+        }
+    }
+    
     switch (self.sorting) {
-        case BLDataStructureSortingUpdatedAt:
-            return [arryWithoutDuplicates sortedArrayUsingComparator:^NSComparisonResult(id<BLDataObject>  _Nonnull obj1, id<BLDataObject> _Nonnull obj2) {
+        case BLDataSortingUpdatedAt:
+            return [newItems sortedArrayUsingComparator:^NSComparisonResult(id<BLDataObject>  _Nonnull obj1, id<BLDataObject> _Nonnull obj2) {
                 return [obj2.updatedAt compare:obj1.updatedAt];
             }];
-        case BLDataStructureSortingCreatedAt:
-            return [arryWithoutDuplicates sortedArrayUsingComparator:^NSComparisonResult(id<BLDataObject>  _Nonnull obj1, id<BLDataObject> _Nonnull obj2) {
+        case BLDataSortingUpdatedAtReverse:
+            return [newItems sortedArrayUsingComparator:^NSComparisonResult(id<BLDataObject>  _Nonnull obj1, id<BLDataObject> _Nonnull obj2) {
+                return [obj1.updatedAt compare:obj2.updatedAt];
+            }];
+        case BLDataSortingCreatedAt:
+            return [newItems sortedArrayUsingComparator:^NSComparisonResult(id<BLDataObject>  _Nonnull obj1, id<BLDataObject> _Nonnull obj2) {
                 return [obj1.createdAt compare:obj2.createdAt];
             }];
-        case BLDataStructureSortingCreatedAtReverse:
-            return [arryWithoutDuplicates sortedArrayUsingComparator:^NSComparisonResult(id<BLDataObject>  _Nonnull obj1, id<BLDataObject> _Nonnull obj2) {
+        case BLDataSortingCreatedAtReverse:
+            return [newItems sortedArrayUsingComparator:^NSComparisonResult(id<BLDataObject>  _Nonnull obj1, id<BLDataObject> _Nonnull obj2) {
                 return [obj2.createdAt compare:obj1.createdAt];
             }];
+        case BLDataSortingSortingCustom:
+            if (self.customSortingBlock) {
+                return self.customSortingBlock(newItems);
+            }
+            return [self orderedArrayFromArray:newItems];
             
         default:
             break;
     }
-    return [self orderedArrayFromArray:arryWithoutDuplicates];
+    return [NSArray arrayWithArray:newItems];
 }
 
 - (NSArray<id<BLDataObject>> *) orderedArrayFromArray:(NSArray<id<BLDataObject>> *)sourceArray {

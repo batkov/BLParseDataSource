@@ -30,7 +30,7 @@
 typedef NS_ENUM(NSInteger, BLFetchMode) {
     BLFetchModeOnlineOffline, 
     BLFetchModeOnlineOnly,
-    BLFetchModeOnfflineOnly,
+    BLFetchModeOfflineOnly,
 };
 
 @protocol BLBaseFetch <NSObject>

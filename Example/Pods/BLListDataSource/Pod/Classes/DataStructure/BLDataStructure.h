@@ -27,12 +27,26 @@
 
 @class BLBaseFetchResult;
 
+typedef NS_ENUM(NSUInteger, BLDataSorting) {
+    BLDataSortingUpdatedAt,
+    BLDataSortingUpdatedAtReverse,
+    BLDataSortingCreatedAt,
+    BLDataSortingCreatedAtReverse,
+    BLDataSortingSortingCustom,
+    BLDataNoSorting,
+};
+typedef NSArray<id<BLDataObject>>*(^BLCustomSortingBlock)(NSArray<id<BLDataObject>>* array);
+
 @interface BLDataStructure : NSObject
 
 + (instancetype) dataStructureWithFetchResult:(BLBaseFetchResult *) fetchResult;
++ (instancetype) dataStructureWithFetchResult:(BLBaseFetchResult *) fetchResult sorting:(BLDataSorting) sorting;
++ (instancetype) dataStructureWithFetchResult:(BLBaseFetchResult *) fetchResult sorting:(BLDataSorting) sorting block:(BLCustomSortingBlock) block;
 
 - (void) processFetchResult:(BLBaseFetchResult *) fetchResult;
 
+@property (nonatomic, assign, readonly) BLDataSorting sorting; // BLDataSortingCreatedAt by default
+@property (nonatomic, copy, readonly) BLCustomSortingBlock customSortingBlock;
 @property (nonatomic, copy) dispatch_block_t changedBlock;
 #pragma mark - Table View conviniency methods
 - (NSUInteger) sectionsCount;

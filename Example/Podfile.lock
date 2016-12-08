@@ -1,11 +1,11 @@
 PODS:
-  - BLListDataSource (0.9.6)
-  - BLParseFetch (0.2.0):
+  - BLListDataSource (0.9.13)
+  - BLParseFetch (0.2.5):
     - BLListDataSource
     - Parse
-  - Bolts/Tasks (1.6.0)
-  - Parse (1.12.0):
-    - Bolts/Tasks (~> 1.5)
+  - Bolts/Tasks (1.8.4)
+  - Parse (1.14.2):
+    - Bolts/Tasks (~> 1.8)
 
 DEPENDENCIES:
   - BLParseFetch (from `../`)
@@ -15,9 +15,11 @@ EXTERNAL SOURCES:
     :path: ../
 
 SPEC CHECKSUMS:
-  BLListDataSource: cc8bfa31b5d0295a4b1ed016e03e22af7accdc7a
-  BLParseFetch: abf8d18239198acc81eba911f2135a2579b96db6
-  Bolts: f52a250053bb517ca874523c3913776359ab3def
-  Parse: de2c52a9a1421b91ae7594ab8ce191afd184f19b
+  BLListDataSource: 7abbc605c07228ddab1f6f2cf592f04db23070d8
+  BLParseFetch: b8bf1083363583690f54416298f5608a6ccc7833
+  Bolts: 8a7995239dbe724f9cba2248b766d48b7ebdd322
+  Parse: 4335d65f40cb3d43190d723144bbe1afb9c38230
 
-COCOAPODS: 0.39.0
+PODFILE CHECKSUM: 34aff200fa9017bc4b04839301c50a3e61bb8e9b
+
+COCOAPODS: 1.1.1

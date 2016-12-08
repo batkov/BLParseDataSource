@@ -30,4 +30,8 @@
 - (NSDate *) createdAt;
 - (NSDate *) updatedAt;
 
+@optional
+- (id) objectToStore;
+- (NSArray *) objectsToStore;
+
 @end

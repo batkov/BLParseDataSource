@@ -24,16 +24,10 @@
 
 #import "BLDataStructure.h"
 #import "BLDataObject.h"
-
-typedef NS_ENUM(NSUInteger, BLDataStructureSorting) {
-    BLDataStructureSortingUpdatedAt,
-    BLDataStructureSortingCreatedAt,
-    BLDataStructureSortingCreatedAtReverse,
-    BLDataStructureSortingSortingCustom,
-};
 @interface BLDataStructure ()
 
-@property (nonatomic, assign) BLDataStructureSorting sorting; // BLDataStructureSortingUpdatedAt by default
+@property (nonatomic, assign) BLDataSorting sorting; // BLDataSortingCreatedAt by default
+@property (nonatomic, copy) BLCustomSortingBlock customSortingBlock; 
 - (NSArray<id<BLDataObject>> *) orderedArrayFromArray:(NSArray<id<BLDataObject>> *)sourceArray; // Called if BLDataStructureSortingSortingCustom selected
 
 @property (nonatomic, strong) NSMutableArray<NSArray <id<BLDataObject>> *> * sections;
