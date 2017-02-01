@@ -44,5 +44,8 @@ typedef NSArray<PFQuery *> * (^BLParseOfflineQueriesBlock)();
 @property (nonatomic, strong) NSString * pinName; // PFObjectDefaultPin by default
 @property (nonatomic, copy) BLParseOfflineQueriesBlock offlineQueriesBlock;
 
-
+#pragma mark - Offline setup
+// If this property is nil dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0) will be used
+// Default is nil
+@property (nonatomic, strong) dispatch_queue_t offlineFetchQueue;
 @end

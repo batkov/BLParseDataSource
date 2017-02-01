@@ -72,7 +72,8 @@
     }
     NSAssert(self.offlineQueriesBlock, @"You need to set offlineQueriesBlock if -offlineFetchAvailable is YES");
     NSArray<PFQuery *> * queries = self.offlineQueriesBlock();
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
+    dispatch_queue_t queue = self.offlineFetchQueue ? : dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    dispatch_async(queue, ^{
         NSMutableArray * array = [NSMutableArray array];
         NSError * error = nil;
         for (PFQuery * query in queries) {
