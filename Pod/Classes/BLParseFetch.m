@@ -1,5 +1,5 @@
 //
-//  FSParseFetch.m
+//  BLParseFetch.m
 //  https://github.com/batkov/BLParseFetch
 //
 // Copyright (c) 2016 Hariton Batkov
@@ -29,8 +29,6 @@
 - (instancetype) init {
     if (self = [super init]) {
         self.pinName = PFObjectDefaultPin;
-        self.offlineFetchAvailable = [Parse isLocalDatastoreEnabled];
-        self.offlineStoreAvailable = [Parse isLocalDatastoreEnabled];
     }
     return self;
 }
@@ -67,9 +65,6 @@
 
 #pragma mark - Offline
 - (void) fetchOffline:(BLIdResultBlock __nonnull)block {
-    if (!self.offlineFetchAvailable) {
-        return;
-    }
     NSAssert(self.offlineQueriesBlock, @"You need to set offlineQueriesBlock if -offlineFetchAvailable is YES");
     NSArray<PFQuery *> * queries = self.offlineQueriesBlock();
     dispatch_queue_t queue = self.offlineFetchQueue ? : dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
@@ -89,14 +84,13 @@
     });
 }
 
+
 - (void) storeItems:(BLBaseFetchResult *__nullable)fetchResult
-           callback:(BLBoolResultBlock _Nonnull)callback {
-    if (!self.offlineStoreAvailable) {
-        return;
-    }
+      removeOldData:(BOOL)removeOldData
+           callback:(BLBoolResultBlock __nonnull) callback; {
     NSArray * itemsToSave = [self itemsToSaveFrom:fetchResult];
     NSString * pinName = [self pinName];
-    if (!self.offlineFetchAvailable) {
+    if (!self.offlineQueriesBlock || !removeOldData) {
         [self storeItemsInternal:itemsToSave callback:callback];
         return;
     }
@@ -110,7 +104,7 @@
                               withName:pinName
                                  block:^(BOOL succeeded, NSError * _Nullable error) {
                                      [self storeItemsInternal:itemsToSave callback:callback];
-        }];
+                                 }];
         
     }];
 }
@@ -144,6 +138,39 @@
         }
     }
     return [NSArray arrayWithArray:itemsToSave];
+}
+
+
+- (void) saveNewObject:(id<BLDataObject> __nonnull)object callback:(BLIdResultBlock __nonnull)callback {
+    NSAssert([object isKindOfClass:[PFObject class]], @"Cannot operate with obects that is not kind of PFObject");
+    PFObject * pfObject = (PFObject *)object;
+    [pfObject saveInBackgroundWithBlock:^(BOOL succeeded, NSError * _Nullable error) {
+        if (succeeded) {
+            callback(pfObject, nil);
+            return;
+        }
+        callback(nil, error);
+    }];
+}
+
+- (void) updateObject:(id<BLDataObject> __nonnull)object callback:(BLIdResultBlock __nonnull)callback {
+    NSAssert([object isKindOfClass:[PFObject class]], @"Cannot operate with obects that is not kind of PFObject");
+    PFObject * pfObject = (PFObject *)object;
+    [pfObject saveInBackgroundWithBlock:^(BOOL succeeded, NSError * _Nullable error) {
+        if (succeeded) {
+            callback(pfObject, nil);
+            return;
+        }
+        callback(nil, error);
+    }];
+}
+
+- (void) deleteObject:(id<BLDataObject> __nonnull)object callback:(BLBoolResultBlock __nonnull)callback {
+    NSAssert([object isKindOfClass:[PFObject class]], @"Cannot operate with obects that is not kind of PFObject");
+    PFObject * pfObject = (PFObject *)object;
+    [pfObject deleteInBackgroundWithBlock:^(BOOL succeeded, NSError * _Nullable error) {
+        callback(succeeded, error);
+    }];
 }
 
 @end
