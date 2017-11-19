@@ -26,12 +26,22 @@
 
 @protocol BLDataObject <NSObject>
 
+// Unique string that differ this object from others
 - (NSString*) objectId;
+
+// Creation date
 - (NSDate *) createdAt;
+
+// Date of last update
 - (NSDate *) updatedAt;
 
 @optional
+// If this object is some kind of proxy you can
+// save original object / object by defining these methods
 - (id) objectToStore;
 - (NSArray *) objectsToStore;
+
+// Methods to operate
+
 
 @end

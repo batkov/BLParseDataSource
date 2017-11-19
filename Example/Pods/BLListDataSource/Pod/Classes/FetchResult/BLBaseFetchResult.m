@@ -53,6 +53,10 @@
     return [NSArray arrayWithObject:self.items];
 }
 
+- (NSDictionary *) sectionsMetadata {
+    return @{};
+}
+
 - (BOOL) validateItemsList:(id) itemsList {
     if (![itemsList isKindOfClass:[NSArray class]]) {
         self.lastError = [NSError errorWithDomain:BLErrorDomain code:BLErrorCoreWrongDataFormat

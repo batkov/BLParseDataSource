@@ -25,15 +25,29 @@
 #import <Foundation/Foundation.h>
 #import "BLDataObject.h"
 
+@class BLBaseFetchResult;
+typedef BLBaseFetchResult*(^BLFetchResultBlock)(id object, BOOL isLocal);
+
 @interface BLBaseFetchResult : NSObject
 
+// Fetch result created from online data
 + (instancetype) fetchResultForObject:(id)object;
+// Fetch result created from offline data
 + (instancetype) fetchResultForLocalObject:(id)object;
 
+// Override it, if you're changing -sections or -items.
+// self.items != nil by default
 - (BOOL) isValid;
+
 @property (nonatomic, strong, readonly) NSArray<id<BLDataObject>> * items;
 @property (nonatomic, strong, readonly) NSError * lastError;
 
+// Array with arrays
+// @[@[item00, item01], @[item10, item11, item12]]
 - (NSArray *) sections;
+
+// Array with arrays
+// @{0:@{some data}, 1:'some object'}
+- (NSDictionary *) sectionsMetadata;
 
 @end

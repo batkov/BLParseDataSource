@@ -23,6 +23,7 @@
 // SOFTWARE.
 
 #import <Foundation/Foundation.h>
+#import "BLDataKeys.h"
 #import "BLDataObject.h"
 
 @class BLBaseFetchResult;
@@ -47,7 +48,7 @@ typedef NSArray<id<BLDataObject>>*(^BLCustomSortingBlock)(NSArray<id<BLDataObjec
 
 @property (nonatomic, assign, readonly) BLDataSorting sorting; // BLDataSortingCreatedAt by default
 @property (nonatomic, copy, readonly) BLCustomSortingBlock customSortingBlock;
-@property (nonatomic, copy) dispatch_block_t changedBlock;
+@property (nonatomic, copy) BLObjectBlock changedBlock;
 #pragma mark - Table View conviniency methods
 - (NSUInteger) sectionsCount;
 - (NSUInteger) itemsCountForSection:(NSUInteger) section;

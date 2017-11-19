@@ -38,6 +38,10 @@
     return newPaging;
 }
 
+-(NSString *)description {
+    return [NSString stringWithFormat:@"%@ [%li : %li]", [super description], (long)self.skip, (long)self.limit];
+}
+
 @end
 
 @implementation BLMutablePaging

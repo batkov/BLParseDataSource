@@ -23,9 +23,19 @@
 // SOFTWARE.
 
 #import <Foundation/Foundation.h>
+typedef NS_ENUM(NSInteger, BLDataSourceState) {
+    BLDataSourceStateInit,
+    BLDataSourceStateLoadContent,
+    BLDataSourceStateError,
+    BLDataSourceStateContent,
+    BLDataSourceStateNoContent,
+    BLDataSourceStateRefreshContent,
+};
 
 typedef void (^BLIdResultBlock)(_Nullable id object, NSError *_Nullable error);
 typedef void (^BLBoolResultBlock)(BOOL result, NSError *_Nullable error);
+typedef void (^BLObjectBlock)(_Nullable id object);
+typedef void(^BLDataSourceStateBlock)(BLDataSourceState state);
 
 typedef NS_ENUM(NSInteger, BLErrorCore) {
     BLErrorCoreWrongDataFormat = -100501

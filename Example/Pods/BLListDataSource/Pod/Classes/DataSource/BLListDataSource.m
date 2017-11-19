@@ -26,7 +26,7 @@
 #import "BLSimpleListFetchResult.h"
 #import "BLListDataSource+Subclass.h"
 
-#define kBLParseListDefaultPagingLimit 15
+#define kBLParseListDefaultPagingLimit 25
 
 
 @implementation BLListDataSource
@@ -34,17 +34,34 @@
 - (instancetype) initWithFetch:(id<BLBaseFetch>) fetch {
     NSAssert(fetch, @"You need to provide fetch");
     if (self = [super init]) {
-        self.pagingEnabled = YES;
-        self.autoAdvance = NO;
         self.fetch = fetch;
-        self.fetchResultBlock = ^(id object, BOOL isLocal) {
-            if (isLocal) {
-                return [BLSimpleListFetchResult fetchResultForLocalObject:object];
-            }
-            return [BLSimpleListFetchResult fetchResultForObject:object];
-        };
+        self.update = nil;
+        [self commonInit];
     }
     return self;
+}
+
+- (instancetype) initWithFetch:(id<BLBaseFetch>) fetch update:(id<BLBaseUpdate>) update {
+    NSAssert(fetch, @"You need to provide fetch");
+    if (self = [super init]) {
+        self.fetch = fetch;
+        self.update = update;
+        [self commonInit];
+    }
+    return self;
+}
+
+- (void) commonInit {
+    self.storagePolicy = self.update ? BLOfflineFirstPage : BLOfflineDoNotStore;
+    self.pagingEnabled = YES;
+    self.autoAdvance = NO;
+    self.fetchResultBlock = ^(id object, BOOL isLocal) {
+        if (isLocal) {
+            return [BLSimpleListFetchResult fetchResultForLocalObject:object];
+        }
+        return [BLSimpleListFetchResult fetchResultForObject:object];
+    };
+    self.defaultPageSize = kBLParseListDefaultPagingLimit;
 }
 
 - (BLPaging *) paging {
@@ -54,7 +71,7 @@
     if (!_paging) {
         BLMutablePaging * paging = [BLMutablePaging new];
         paging.skip = 0;
-        paging.limit = kBLParseListDefaultPagingLimit;
+        paging.limit = self.defaultPageSize;
         _paging = [BLPaging pagingFromPaging:paging];
     }
     return _paging;
@@ -86,6 +103,9 @@
 }
 
 - (BOOL) shouldClearList {
+    if (!self.pagingEnabled) {
+        return YES;
+    }
     return self.paging && self.paging.skip == 0;
 }
 
@@ -145,20 +165,34 @@
 }
 
 - (void) itemsLoaded:(BLBaseFetchResult *) fetchResult {
+    BOOL calledForStore = NO;
     if ([self shouldClearList]) {
         self.dataStructure = nil;
-        __weak typeof(self) selff = self;
-        [self.fetch storeItems:fetchResult callback:^(BOOL result, NSError * _Nullable error) {
-            if (selff.storedBlock) {
-                self.storedBlock(error);
-            }
-        }];
+        if (self.storagePolicy == BLOfflineFirstPage) {
+            calledForStore = YES;
+            [self storeItems:fetchResult];
+        }
     }
     
+    if (self.storagePolicy == BLOfflineAllData && !calledForStore) {
+        [self storeItems:fetchResult];
+    }
     [self processFetchResult:fetchResult];
     [self updatePagingFlagsForListSize];
     [self contentLoaded:nil];
     [self loadNextPageIfAutoAdvance];
+}
+
+- (void) storeItems:(BLBaseFetchResult *) fetchResult {
+    NSAssert(self.update, @"You need to provide 'update' to store something");
+    __weak typeof(self) selff = self;
+    [self.update storeItems:fetchResult
+              removeOldData:self.storagePolicy == BLOfflineFirstPage
+                   callback:^(BOOL result, NSError * _Nullable error) {
+        if (selff.storedBlock) {
+            self.storedBlock(error);
+        }
+    }];
 }
 
 - (void) loadNextPageIfAutoAdvance {
@@ -175,7 +209,9 @@
 
 - (void) startContentLoading {
     [super startContentLoading];
-    [self fetchOfflineData:NO];
+    if (self.fetchMode != BLFetchModeOfflineOnly) {
+        [self fetchOfflineData:NO];
+    }
     [self runRequest];
 }
 
@@ -186,24 +222,22 @@
 
 - (BOOL) refreshContentIfPossible {
     NSAssert(self.state != BLDataSourceStateInit, @"We actually shouldn't be here");
-    if (self.state == BLDataSourceStateLoadContent)
+    if (self.state == BLDataSourceStateLoadContent || self.state == BLDataSourceStateRefreshContent) {
         return NO;
-    if (self.state == BLDataSourceStateRefreshContent)
-        return NO;
+    }
     self.paging = nil;
     [self startContentRefreshing];
     return YES;
-    
 }
 
 - (BOOL) loadMoreIfPossible {
-    if (self.state == BLDataSourceStateLoadContent)
+    NSAssert(self.state != BLDataSourceStateInit, @"We actually shouldn't be here");
+    if (self.state != BLDataSourceStateContent) {
         return NO;
-    if (self.state == BLDataSourceStateRefreshContent)
-        return NO;
-    
-    if (self.state != BLDataSourceStateContent)
-        return NO;
+    }
+    // We shouldn't check here for canLoadMore
+    // Case user awaits for next item to appear
+    // and swipe reload from bottom
     [self startContentRefreshing];
     return YES;
 }
@@ -216,13 +250,14 @@
     }
     self.dataStructure.changedBlock = self.itemsChangedBlock;
     if (self.itemsChangedBlock) {
-        self.itemsChangedBlock ();
+        self.itemsChangedBlock (self.dataStructure);
     }
 }
 
 - (BLDataStructure *) dataStructureFromFetchResult:(BLBaseFetchResult *) fetchResult {
-    if (self.dataStructreBlock) {
-        BLDataStructure * dataStructure = self.dataStructreBlock(fetchResult);
+    if (self.dataStructureBlock) {
+        NSAssert(self.dataSortingBlock == nil, @"dataSortingBlock is ignored if you are using dataStructureBlock");
+        BLDataStructure * dataStructure = self.dataStructureBlock(fetchResult);
         NSAssert([dataStructure isKindOfClass:[BLDataStructure class]], @"Wrong class or nil");
         return dataStructure;
     }
@@ -248,6 +283,17 @@
         return self.fetchResultBlock(object, YES);
     }
     return nil; // For subclassing
+}
+
+#pragma mark -
+-(NSString *)description {
+    NSString * fetchMode = @"OnlineAndOffline";
+    if (self.fetchMode == BLFetchModeOnlineOnly) {
+        fetchMode = @"Online";
+    } else if (self.fetchMode == BLFetchModeOfflineOnly) {
+        fetchMode = @"Offline";
+    }
+    return [NSString stringWithFormat:@"%@\nMode: %@\nFetch: %@\nDataStructure: %@\nPaging: %@", [super description], fetchMode, [self.fetch description], [self.dataStructure description], [self.paging description]];
 }
 
 @end

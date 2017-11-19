@@ -27,6 +27,30 @@
 
 @implementation BLSimpleListFetchResult
 
++ (instancetype) fetchResultForObject:(id)object {
+    if ([object isKindOfClass:[NSDictionary class]]) {
+        BLSimpleListFetchResult * result = [[self alloc] init];
+        NSDictionary * dict = (NSDictionary *) object;
+        if ([dict count] == 1) {
+            id objectInside = [dict objectForKey:[dict.allKeys firstObject]];
+            NSAssert(objectInside, @"If this object is nil, sonething completely went wrong %@", object);
+            NSArray * items = nil;
+            if ([objectInside isKindOfClass:[NSArray class]]) {
+                items = objectInside;
+            } else {
+                items = @[objectInside];
+            }
+            if ([result validateItemsList:items]) {
+                [result parseItemsList:items];
+            }
+            
+        }
+        return result;
+    }
+    return [super fetchResultForObject:object];
+   
+}
+
 -(void)parseItemsList:(NSArray *)array {
     self.items = [NSArray arrayWithArray:array];
 }

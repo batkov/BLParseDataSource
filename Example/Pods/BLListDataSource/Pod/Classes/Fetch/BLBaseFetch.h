@@ -39,5 +39,5 @@ typedef NS_ENUM(NSInteger, BLFetchMode) {
 
 #pragma mark - Offline
 - (void) fetchOffline:(BLIdResultBlock __nonnull)callback;
-- (void) storeItems:(BLBaseFetchResult *__nullable)fetchResult callback:(BLBoolResultBlock __nonnull) callback;
+
 @end

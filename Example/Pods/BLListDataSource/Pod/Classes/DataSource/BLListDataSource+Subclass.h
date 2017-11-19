@@ -30,6 +30,7 @@
 @interface BLListDataSource ()
 @property (nonatomic, strong, readwrite, nullable) BLDataStructure * dataStructure;
 
+@property (nonatomic, strong, readwrite, nullable) id<BLBaseUpdate> update;
 @property (nonatomic, strong, readwrite, nonnull) id<BLBaseFetch> fetch;
 @property (nonatomic, strong, readwrite, nullable) BLPaging * paging;
 @property (nonatomic, assign) BOOL canLoadMore;
@@ -38,6 +39,8 @@
 - (BLDataStructure *__nonnull) dataStructureFromFetchResult:(BLBaseFetchResult *__nonnull) fetchResult;
 - (BLBaseFetchResult * __nonnull) createFetchResultFor:(id __nullable)object;
 - (BLBaseFetchResult * __nonnull) createFetchResultForLocalObject:(id __nullable)object;
+
+// Override this method to customize fetch result processing
 - (void) processFetchResult:(BLBaseFetchResult *__nonnull) fetchResult;
 
 - (void) updatePagingFlagsForListSize;

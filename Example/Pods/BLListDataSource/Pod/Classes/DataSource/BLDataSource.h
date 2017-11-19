@@ -23,18 +23,9 @@
 // SOFTWARE.
 
 #import <Foundation/Foundation.h>
-
-typedef NS_ENUM(NSInteger, BLDataSourceState) {
-    BLDataSourceStateInit,
-    BLDataSourceStateLoadContent,
-    BLDataSourceStateError,
-    BLDataSourceStateContent,
-    BLDataSourceStateNoContent,
-    BLDataSourceStateRefreshContent,
-};
+#import "BLDataKeys.h"
 
 @protocol BLDataSourceDelegate;
-typedef void(^BLDataSourceStateBlock)(BLDataSourceState state);
 
 @interface BLDataSource : NSObject
 
