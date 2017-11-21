@@ -1,6 +1,6 @@
 PODS:
-  - BLListDataSource (0.9.27)
-  - BLParseFetch (0.3.2):
+  - BLListDataSource (0.9.29)
+  - BLParseFetch (0.4.0):
     - BLListDataSource
     - Parse
   - Bolts/Tasks (1.8.4)
@@ -8,18 +8,26 @@ PODS:
     - Bolts/Tasks (~> 1.8)
 
 DEPENDENCIES:
+  - BLListDataSource (from `https://github.com/batkov/BLListDataSource`)
   - BLParseFetch (from `../`)
 
 EXTERNAL SOURCES:
+  BLListDataSource:
+    :git: https://github.com/batkov/BLListDataSource
   BLParseFetch:
     :path: ../
 
+CHECKOUT OPTIONS:
+  BLListDataSource:
+    :commit: 2c843da01fe037e98e1ca290900388358c637927
+    :git: https://github.com/batkov/BLListDataSource
+
 SPEC CHECKSUMS:
-  BLListDataSource: fb5a03d89d351f20e762c9c3c1ea53d5ca011ccf
-  BLParseFetch: 953fa914fef4e56dfb3ea277df9cc2b5ae793e18
+  BLListDataSource: cd6a9f784769d1e50639b0f3d13aac10461a6ed8
+  BLParseFetch: 4df206d7a088cb8264f05456420e5adb63870c42
   Bolts: 8a7995239dbe724f9cba2248b766d48b7ebdd322
   Parse: cdc0f1f975ee8be0409e66f21b05df4ae067047c
 
-PODFILE CHECKSUM: 34aff200fa9017bc4b04839301c50a3e61bb8e9b
+PODFILE CHECKSUM: 8dd660619a10cb0834c8c8448d81ceb82b9bbbda
 
 COCOAPODS: 1.3.1

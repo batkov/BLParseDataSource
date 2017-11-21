@@ -22,7 +22,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#import "BLDataSource.h"
+#import "BLInteractiveDataSource.h"
 #import "BLDataStructure.h"
 #import "BLBaseFetch.h"
 #import "BLPaging.h"
@@ -36,23 +36,21 @@ typedef NS_ENUM(NSInteger, BLOfflineStoragePolicy) {
 };
 typedef BLDataStructure* __nonnull(^BLDataStructureBlock)(BLBaseFetchResult * __nonnull fetchResult);
 typedef BLDataSorting(^BLDataSortingBlock)(BLBaseFetchResult * __nonnull fetchResult);
-typedef void (^BLItemsStoredBlock)(NSError * __nullable error);
 
-@interface BLListDataSource : BLDataSource
-@property (nonatomic, assign) BLFetchMode fetchMode; // BLFetchModeOnlineOffline by default
+@interface BLListDataSource : BLInteractiveDataSource
+
 @property (nonatomic, strong, readonly, nullable) BLDataStructure * dataStructure;
 
 @property (nonatomic, assign) BOOL pagingEnabled; // YES by default
 @property (nonatomic, strong, readonly, nullable) BLPaging * paging;
-@property (nonatomic, assign, readonly) BOOL canLoadMore;
-@property (nonatomic, assign) NSInteger defaultPageSize;
+@property (nonatomic, assign, readonly) BOOL canLoadMore; // YES by default
+@property (nonatomic, assign) NSInteger defaultPageSize; // 25 by default
 
 // BLOfflineFirstPage by default if 'update' is set
 // BLOfflineDoNotStore by default if 'update' not set
 @property (nonatomic, assign) BLOfflineStoragePolicy storagePolicy;
 
 @property (nonatomic, copy, nullable) BLObjectBlock itemsChangedBlock;
-@property (nonatomic, copy, nullable) BLFetchResultBlock fetchResultBlock; // Will return results from BLSimpleListFetchResult by default
 
 @property (nonatomic, copy, nullable) BLDataStructureBlock dataStructureBlock; // Will return instance of BLDataStructure by default
 
@@ -60,12 +58,6 @@ typedef void (^BLItemsStoredBlock)(NSError * __nullable error);
 // You need to provide own sorting into dataStructureBlock
 @property (nonatomic, copy, nullable) BLDataSortingBlock dataSortingBlock; // BLDataSortingCreatedAt by default
 @property (nonatomic, copy, nullable) BLCustomSortingBlock customSortingBlock; // You need to return BLDataSortingSortingCustom in dataSortingBlock id you want to use
-
-@property (nonatomic, copy, nullable) BLItemsStoredBlock storedBlock; // Called after all objects stored
-
-
-@property (nonatomic, strong, readonly, nullable) id<BLBaseUpdate> update;
-@property (nonatomic, strong, readonly, nonnull) id<BLBaseFetch> fetch;
 
 /**
  If YES, will start loading next page right after previous page completed loading.
@@ -78,7 +70,8 @@ typedef void (^BLItemsStoredBlock)(NSError * __nullable error);
 - (__nonnull instancetype) initWithFetch:(id<BLBaseFetch> __nonnull) fetch NS_DESIGNATED_INITIALIZER;
 - (__nonnull instancetype) initWithFetch:(id <BLBaseFetch> __nonnull) fetch update:(id <BLBaseUpdate> __nullable) update NS_DESIGNATED_INITIALIZER;
 
-- (BOOL) refreshContentIfPossible;
+// Will start content loading if state allows
+// Loaded content will be added as second page
 - (BOOL) loadMoreIfPossible;
 
 @end

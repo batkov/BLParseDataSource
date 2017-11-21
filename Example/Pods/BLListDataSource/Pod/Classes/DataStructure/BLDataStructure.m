@@ -94,7 +94,7 @@
     return [self sections][indexPath.section][indexPath.row];
 }
 
-- (BOOL) removeItem:(id) item fromSection:(NSUInteger) section {
+- (BOOL) removeItem:(id<BLDataObject>) item fromSection:(NSUInteger) section {
     NSArray * items = self.sections[section];
     NSMutableArray * mutable = [items mutableCopy];
     NSUInteger oldCount = [mutable count];
@@ -108,7 +108,7 @@
     return result;
 }
 
-- (void) insertItem:(id) item toSection:(NSUInteger) section {
+- (void) insertItem:(id<BLDataObject>) item toSection:(NSUInteger) section {
     NSAssert(item, @"Cannot insert nil item");
     self.sections[section] = [self processItems:@[item] inSection:section];
     if (self.changedBlock) {

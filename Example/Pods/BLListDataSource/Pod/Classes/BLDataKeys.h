@@ -23,6 +23,8 @@
 // SOFTWARE.
 
 #import <Foundation/Foundation.h>
+@protocol BLDataObject;
+
 typedef NS_ENUM(NSInteger, BLDataSourceState) {
     BLDataSourceStateInit,
     BLDataSourceStateLoadContent,
@@ -41,3 +43,15 @@ typedef NS_ENUM(NSInteger, BLErrorCore) {
     BLErrorCoreWrongDataFormat = -100501
 };
 static NSString * const __nonnull BLErrorDomain = @"BLListDataSource";
+
+
+#pragma mark - Sorting
+typedef NS_ENUM(NSUInteger, BLDataSorting) {
+    BLDataSortingUpdatedAt,
+    BLDataSortingUpdatedAtReverse,
+    BLDataSortingCreatedAt,
+    BLDataSortingCreatedAtReverse,
+    BLDataSortingSortingCustom,
+    BLDataNoSorting,
+};
+typedef NSArray<id<BLDataObject>>*_Nonnull(^BLCustomSortingBlock)(NSArray<id<BLDataObject>>* _Nonnull array);

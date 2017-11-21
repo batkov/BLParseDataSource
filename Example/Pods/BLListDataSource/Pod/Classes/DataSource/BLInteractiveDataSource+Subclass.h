@@ -1,8 +1,7 @@
 //
-//  BLBaseFetch.h
-//  https://github.com/batkov/BLDataSource
+//  BLInteractiveDataSource+Subclass.h
 //
-// Copyright (c) 2016 Hariton Batkov
+// Copyright (c) 2017 Hariton Batkov
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -22,26 +21,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "BLBaseFetchResult.h"
-#import "BLDataKeys.h"
-#import "BLPaging.h"
+#import "BLDataSource+Subclass.h"
 
-typedef NS_ENUM(NSInteger, BLFetchMode) {
-    BLFetchModeOnlineOffline, 
-    BLFetchModeOnlineOnly,
-    BLFetchModeOfflineOnly,
-};
+@interface BLInteractiveDataSource ()
 
-@protocol BLBaseFetch <NSObject>
+@property (nonatomic, strong, readwrite, nullable) id<BLBaseUpdate> update;
+@property (nonatomic, strong, readwrite, nonnull) id<BLBaseFetch> fetch;
 
-// Fetch predefined list
-- (void) fetchOnline:(BLPaging *__nullable) paging callback:(BLIdResultBlock __nonnull)callback;
+- (BOOL) failIfNeeded:(NSError * __nullable)error;
+- (void) cleanContent;
+- (void) processFetchResult:(BLBaseFetchResult * __nullable) fetchResult;
+- (BLIdResultBlock __nonnull) createOnlineResultBlock;
 
-- (void) fetchOnlineObject:(id<BLDataObject> __nonnull)dataObject callback:(BLIdResultBlock __nonnull)callback;
-
-#pragma mark - Offline
-- (void) fetchOffline:(BLIdResultBlock __nonnull)callback;
-- (void) fetchOfflineObject:(id<BLDataObject> __nonnull)dataObject callback:(BLIdResultBlock __nonnull)callback;
-
+- (BLPaging * __nullable) paging;
+- (BOOL) shouldStoreFetchedData;
+- (BOOL) shouldCleanContentBeforeProcessOnlineItems;
+- (BOOL) shouldRemoveStoredItemsBeforeSavingNew;
 @end

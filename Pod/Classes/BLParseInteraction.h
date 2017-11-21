@@ -1,6 +1,6 @@
 //
-//  BLBaseFetch.h
-//  https://github.com/batkov/BLDataSource
+//  BLParseInteraction.h
+//  https://github.com/batkov/BLParseFetch
 //
 // Copyright (c) 2016 Hariton Batkov
 //
@@ -22,26 +22,30 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#import <Foundation/Foundation.h>
-#import "BLBaseFetchResult.h"
-#import "BLDataKeys.h"
-#import "BLPaging.h"
+@import BLListDataSource;
+#import <Parse/Parse.h>
 
-typedef NS_ENUM(NSInteger, BLFetchMode) {
-    BLFetchModeOnlineOffline, 
-    BLFetchModeOnlineOnly,
-    BLFetchModeOfflineOnly,
-};
+typedef NSDictionary * (^BLParseCloudParamsBlock)(BLPaging * paging);
+typedef PFQuery * (^BLParseQueryBlock)(void);
+typedef NSArray<PFQuery *> * (^BLParseOfflineQueriesBlock)(void);
 
-@protocol BLBaseFetch <NSObject>
+@interface BLParseInteraction : NSObject <BLBaseFetch, BLBaseUpdate>
 
-// Fetch predefined list
-- (void) fetchOnline:(BLPaging *__nullable) paging callback:(BLIdResultBlock __nonnull)callback;
+#pragma mark - Online from cloud func
+@property (nonatomic, strong) NSString * cloudFuncName;
+@property (nonatomic, copy) BLParseCloudParamsBlock cloudParamsBlock;
 
-- (void) fetchOnlineObject:(id<BLDataObject> __nonnull)dataObject callback:(BLIdResultBlock __nonnull)callback;
+#pragma mark - Online from query
+@property (nonatomic, copy) BLParseQueryBlock queryBlock;
 
-#pragma mark - Offline
-- (void) fetchOffline:(BLIdResultBlock __nonnull)callback;
-- (void) fetchOfflineObject:(id<BLDataObject> __nonnull)dataObject callback:(BLIdResultBlock __nonnull)callback;
+#pragma mark - Offline from queries
+@property (nonatomic, strong) NSString * pinName; // PFObjectDefaultPin by default
+@property (nonatomic, copy) BLParseOfflineQueriesBlock offlineQueriesBlock;
 
+#pragma mark - Offline setup
+// If this property is nil dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0) will be used
+// Default is nil
+@property (nonatomic, strong) dispatch_queue_t offlineFetchQueue;
 @end
+
+@compatibility_alias BLParseFetch BLParseInteraction;

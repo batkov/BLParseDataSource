@@ -28,43 +28,33 @@
 
 @class BLBaseFetchResult;
 
-typedef NS_ENUM(NSUInteger, BLDataSorting) {
-    BLDataSortingUpdatedAt,
-    BLDataSortingUpdatedAtReverse,
-    BLDataSortingCreatedAt,
-    BLDataSortingCreatedAtReverse,
-    BLDataSortingSortingCustom,
-    BLDataNoSorting,
-};
-typedef NSArray<id<BLDataObject>>*(^BLCustomSortingBlock)(NSArray<id<BLDataObject>>* array);
-
 @interface BLDataStructure : NSObject
 
-+ (instancetype) dataStructureWithFetchResult:(BLBaseFetchResult *) fetchResult;
-+ (instancetype) dataStructureWithFetchResult:(BLBaseFetchResult *) fetchResult sorting:(BLDataSorting) sorting;
-+ (instancetype) dataStructureWithFetchResult:(BLBaseFetchResult *) fetchResult sorting:(BLDataSorting) sorting block:(BLCustomSortingBlock) block;
++ (__nonnull instancetype) dataStructureWithFetchResult:(BLBaseFetchResult * _Nonnull) fetchResult;
++ (__nonnull instancetype) dataStructureWithFetchResult:(BLBaseFetchResult * _Nonnull) fetchResult sorting:(BLDataSorting) sorting;
++ (__nonnull instancetype) dataStructureWithFetchResult:(BLBaseFetchResult * _Nonnull) fetchResult sorting:(BLDataSorting) sorting block:(BLCustomSortingBlock _Nullable ) block;
 
-- (void) processFetchResult:(BLBaseFetchResult *) fetchResult;
+- (void) processFetchResult:(BLBaseFetchResult *_Nonnull) fetchResult;
 
 @property (nonatomic, assign, readonly) BLDataSorting sorting; // BLDataSortingCreatedAt by default
-@property (nonatomic, copy, readonly) BLCustomSortingBlock customSortingBlock;
-@property (nonatomic, copy) BLObjectBlock changedBlock;
+@property (nonatomic, copy, readonly, nullable) BLCustomSortingBlock customSortingBlock;
+@property (nonatomic, copy, nullable) BLObjectBlock changedBlock;
 #pragma mark - Table View conviniency methods
 - (NSUInteger) sectionsCount;
 - (NSUInteger) itemsCountForSection:(NSUInteger) section;
-- (id) metadataForSection:(NSUInteger) section;
-- (id<BLDataObject>) objectForIndexPath:(NSIndexPath *) indexPath;
+- (id _Nullable ) metadataForSection:(NSUInteger) section;
+- (id <BLDataObject> _Nonnull) objectForIndexPath:(NSIndexPath * _Nonnull) indexPath;
 
 #pragma mark - Data Source Methods
-- (NSArray<id<BLDataObject>> *) processItems:(NSArray<id<BLDataObject>> *)items inSection:(NSUInteger) section;
+- (NSArray<id<BLDataObject>> *_Nonnull) processItems:(NSArray<id<BLDataObject>> *_Nonnull)items inSection:(NSUInteger) section;
 - (BOOL) hasContent;
-- (BOOL) removeItem:(id) item fromSection:(NSUInteger) section;
-- (void) insertItem:(id) item toSection:(NSUInteger) section;
+- (BOOL) removeItem:(id<BLDataObject> _Nonnull) item fromSection:(NSUInteger) section;
+- (void) insertItem:(id<BLDataObject> _Nonnull) item toSection:(NSUInteger) section;
 - (NSUInteger) dataSize;
 
-- (NSIndexPath *) indexPathForObject:(id <BLDataObject>) item;
+- (NSIndexPath *_Nullable) indexPathForObject:(id <BLDataObject> _Nonnull) item;
 
 #pragma mark -
-- (void)enumerateObjectsUsingBlock:(void (^)(id<BLDataObject> obj, NSIndexPath * indexPath, BOOL *stop))block;
+- (void)enumerateObjectsUsingBlock:(void (^_Nonnull)(id <BLDataObject> _Nonnull obj, NSIndexPath * _Nonnull indexPath, BOOL * _Nonnull stop))block;
 
 @end

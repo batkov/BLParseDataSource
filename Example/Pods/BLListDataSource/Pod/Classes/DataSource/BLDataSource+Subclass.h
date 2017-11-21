@@ -27,9 +27,9 @@
 @interface BLDataSource ()
 
 @property (assign, nonatomic) BLDataSourceState state;
-@property (strong, nonatomic) NSError *lastError;
+@property (strong, nonatomic, nullable) NSError *lastError;
 
-- (void)contentLoaded:(NSError *)error;
+- (void)contentLoaded:(NSError *_Nullable)error;
 
 - (void)fail;
 - (void)success;

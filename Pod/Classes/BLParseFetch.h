@@ -22,28 +22,4 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-@import BLListDataSource;
-#import <Parse/Parse.h>
-
-typedef NSDictionary * (^BLParseCloudParamsBlock)(BLPaging * paging);
-typedef PFQuery * (^BLParseQueryBlock)(void);
-typedef NSArray<PFQuery *> * (^BLParseOfflineQueriesBlock)(void);
-
-@interface BLParseFetch : NSObject <BLBaseFetch, BLBaseUpdate>
-
-#pragma mark - Online from cloud func
-@property (nonatomic, strong) NSString * cloudFuncName;
-@property (nonatomic, copy) BLParseCloudParamsBlock cloudParamsBlock;
-
-#pragma mark - Online from query
-@property (nonatomic, copy) BLParseQueryBlock queryBlock;
-
-#pragma mark - Offline from queries
-@property (nonatomic, strong) NSString * pinName; // PFObjectDefaultPin by default
-@property (nonatomic, copy) BLParseOfflineQueriesBlock offlineQueriesBlock;
-
-#pragma mark - Offline setup
-// If this property is nil dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0) will be used
-// Default is nil
-@property (nonatomic, strong) dispatch_queue_t offlineFetchQueue;
-@end
+#import "BLParseInteraction.h"

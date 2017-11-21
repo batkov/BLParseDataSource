@@ -1,5 +1,5 @@
 //
-//  BLParseFetch.m
+//  BLParseInteraction.m
 //  https://github.com/batkov/BLParseFetch
 //
 // Copyright (c) 2016 Hariton Batkov
@@ -24,7 +24,7 @@
 
 #import "BLParseFetch.h"
 
-@implementation BLParseFetch
+@implementation BLParseInteraction
 
 - (instancetype) init {
     if (self = [super init]) {
@@ -83,6 +83,80 @@
         }
     });
 }
+
+- (void)fetchOfflineObject:(id<BLDataObject> _Nonnull)dataObject
+                  callback:(BLIdResultBlock _Nonnull)callback {
+    NSString * pinName = self.pinName;
+    NSArray<PFObject *> * objectsToFetch = [self fetchObjectsFrom:dataObject];
+    if (objectsToFetch) {
+        dispatch_queue_t queue = self.offlineFetchQueue ? : dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+        dispatch_async(queue, ^{
+            NSMutableArray * array = [NSMutableArray array];
+            NSError * error = nil;
+            for (PFObject * object in objectsToFetch) {
+                NSAssert(object.objectId, @"Cannot fetch not saved object");
+                PFQuery * query = [[object class] query];
+                [query fromPinWithName:pinName];
+                [query whereKey:@"objectId" equalTo:object.objectId];
+                id result = [query getFirstObject:&error];
+                if (error) {
+                    break;
+                }
+                [array addObject:result];;
+            }
+            callback([NSArray arrayWithArray:array], error);
+        });
+        return;
+    }
+    
+    NSError * error = nil;
+    PFObject * objectToFetch = [self fetchObjectFrom:dataObject];
+    NSAssert(objectToFetch.objectId, @"Cannot fetch not saved object");
+    PFQuery * query = [[objectToFetch class] query];
+    [query fromPinWithName:pinName];
+    [query whereKey:@"objectId" equalTo:objectToFetch.objectId];
+    id result = [query getFirstObject:&error];
+    callback(result, error);
+}
+
+
+- (void)fetchOnlineObject:(id<BLDataObject> _Nonnull)dataObject
+                 callback:(BLIdResultBlock _Nonnull)callback {
+    NSArray<PFObject *> * objectsToFetch = [self fetchObjectsFrom:dataObject];
+    if (objectsToFetch) {
+        [PFObject fetchAllInBackground:objectsToFetch
+                                 block:^(NSArray * _Nullable objects, NSError * _Nullable error) {
+                                     callback(objects, error);
+                                 }];
+        return;
+    }
+    PFObject * objectToFetch = [self fetchObjectFrom:dataObject];
+    [objectToFetch fetchInBackgroundWithBlock:^(PFObject * _Nullable object, NSError * _Nullable error) {
+        callback(object, error);
+    }];
+}
+
+- (PFObject *) fetchObjectFrom:(id<BLDataObject> _Nonnull)dataObject {
+    if ([dataObject respondsToSelector:@selector(objectToFetch)]) {
+        PFObject * objectToFetch = [dataObject objectToFetch];
+        NSAssert([objectToFetch isKindOfClass:[PFObject class]], @"Wrong object returned from 'objectToFetch', %@", objectToFetch);
+        return objectToFetch;
+    }
+    NSAssert([dataObject isKindOfClass:[PFObject class]], @"Wrong object provided to fetch, %@", dataObject);
+    return (PFObject *)dataObject;
+}
+- (NSArray<PFObject *> *) fetchObjectsFrom:(id<BLDataObject> _Nonnull)dataObject {
+    if ([dataObject respondsToSelector:@selector(objectsToFetch)]) {
+        NSArray * objectsToFetch = [dataObject objectsToFetch];
+        NSAssert([objectsToFetch isKindOfClass:[NSArray class]], @"Wrong object returned from 'objectsToFetch'");
+        for (id obj in objectsToFetch) {
+            NSAssert([obj isKindOfClass:[PFObject class]], @"Wrong object returned from 'objectsToFetch', %@", obj);
+        }
+        return objectsToFetch;
+    }
+    return nil;
+}
+
 
 
 - (void) storeItems:(BLBaseFetchResult *__nullable)fetchResult

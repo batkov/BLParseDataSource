@@ -22,9 +22,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#import "BLListDataSource.h"
-#import "BLSimpleListFetchResult.h"
 #import "BLListDataSource+Subclass.h"
+#import "BLSimpleListFetchResult.h"
 
 #define kBLParseListDefaultPagingLimit 25
 
@@ -32,20 +31,14 @@
 @implementation BLListDataSource
 
 - (instancetype) initWithFetch:(id<BLBaseFetch>) fetch {
-    NSAssert(fetch, @"You need to provide fetch");
-    if (self = [super init]) {
-        self.fetch = fetch;
-        self.update = nil;
+    if (self = [super initWithFetch:fetch]) {
         [self commonInit];
     }
     return self;
 }
 
 - (instancetype) initWithFetch:(id<BLBaseFetch>) fetch update:(id<BLBaseUpdate>) update {
-    NSAssert(fetch, @"You need to provide fetch");
-    if (self = [super init]) {
-        self.fetch = fetch;
-        self.update = update;
+    if (self = [super initWithFetch:fetch update:update]) {
         [self commonInit];
     }
     return self;
@@ -55,12 +48,6 @@
     self.storagePolicy = self.update ? BLOfflineFirstPage : BLOfflineDoNotStore;
     self.pagingEnabled = YES;
     self.autoAdvance = NO;
-    self.fetchResultBlock = ^(id object, BOOL isLocal) {
-        if (isLocal) {
-            return [BLSimpleListFetchResult fetchResultForLocalObject:object];
-        }
-        return [BLSimpleListFetchResult fetchResultForObject:object];
-    };
     self.defaultPageSize = kBLParseListDefaultPagingLimit;
 }
 
@@ -77,36 +64,19 @@
     return _paging;
 }
 
-- (void)fetchOfflineData:(BOOL) refresh {
-    if (self.fetchMode == BLFetchModeOnlineOnly) {
-        return; // Offline disabled
-    }
-    __weak typeof(self) selff = self;
-    [self.fetch fetchOffline:^(id  _Nullable object, NSError * _Nullable error) {
-        if (error) {
-            // TODO implement loging ?
-        } else if (!selff.dataStructure || refresh) {
-            if (selff.fetchMode == BLFetchModeOfflineOnly && [selff shouldClearList]) {
-                selff.dataStructure = nil;
-            }
-            BLBaseFetchResult * result = [selff createFetchResultForLocalObject:object];
-            [selff processFetchResult:result];
-        }
-        if (refresh) {
-            [selff contentLoaded:error];
-        }
-    }];
-}
-
 - (BOOL) hasContent {
     return [self.dataStructure hasContent];
 }
 
-- (BOOL) shouldClearList {
+- (BOOL) shouldCleanContentBeforeProcessOnlineItems {
     if (!self.pagingEnabled) {
         return YES;
     }
     return self.paging && self.paging.skip == 0;
+}
+
+-(BOOL)shouldRemoveStoredItemsBeforeSavingNew {
+    return self.storagePolicy == BLOfflineFirstPage && [self shouldCleanContentBeforeProcessOnlineItems];
 }
 
 - (void) updatePagingFlagsForListSize {
@@ -118,6 +88,10 @@
     BLMutablePaging * paging = [BLMutablePaging pagingFromPaging:self.paging];
     paging.skip = size;
     self.paging = paging;
+}
+
+- (void) cleanContent {
+    self.dataStructure = nil;
 }
 
 - (void) resetData {
@@ -134,65 +108,11 @@
     [self startContentRefreshing];
 }
 
-- (void) runRequest {
-    if (self.fetchMode == BLFetchModeOfflineOnly) {
-        [self fetchOfflineData:YES];
-        return;
+- (BOOL) shouldStoreFetchedData {
+    if (self.storagePolicy == BLOfflineFirstPage) {
+        return [self shouldCleanContentBeforeProcessOnlineItems];
     }
-    [self.fetch fetchOnline:self.paging
-                   callback:[self createResultBlock]];
-}
-
-- (BLIdResultBlock) createResultBlock {
-    return ^(id object, NSError * error){
-        if ([self failIfNeeded:error])
-            return;
-        BLBaseFetchResult * fetchResult = [self createFetchResultFor:object];
-        if (![fetchResult isValid]) {
-            [self contentLoaded:fetchResult.lastError];
-            return;
-        }
-        [self itemsLoaded:fetchResult];
-    };
-}
-
-- (BOOL) failIfNeeded:(NSError *)error {
-    if (error) {
-        [self contentLoaded:error];
-        return YES;
-    }
-    return NO;
-}
-
-- (void) itemsLoaded:(BLBaseFetchResult *) fetchResult {
-    BOOL calledForStore = NO;
-    if ([self shouldClearList]) {
-        self.dataStructure = nil;
-        if (self.storagePolicy == BLOfflineFirstPage) {
-            calledForStore = YES;
-            [self storeItems:fetchResult];
-        }
-    }
-    
-    if (self.storagePolicy == BLOfflineAllData && !calledForStore) {
-        [self storeItems:fetchResult];
-    }
-    [self processFetchResult:fetchResult];
-    [self updatePagingFlagsForListSize];
-    [self contentLoaded:nil];
-    [self loadNextPageIfAutoAdvance];
-}
-
-- (void) storeItems:(BLBaseFetchResult *) fetchResult {
-    NSAssert(self.update, @"You need to provide 'update' to store something");
-    __weak typeof(self) selff = self;
-    [self.update storeItems:fetchResult
-              removeOldData:self.storagePolicy == BLOfflineFirstPage
-                   callback:^(BOOL result, NSError * _Nullable error) {
-        if (selff.storedBlock) {
-            self.storedBlock(error);
-        }
-    }];
+    return self.storagePolicy == BLOfflineAllData;
 }
 
 - (void) loadNextPageIfAutoAdvance {
@@ -202,22 +122,14 @@
     if (!self.pagingEnabled) {
         return;
     }
-    dispatch_async(dispatch_get_main_queue(), ^{
+    dispatch_barrier_async(dispatch_get_main_queue(), ^{
         [self loadNextPageIfNeeded];
     });
 }
 
-- (void) startContentLoading {
-    [super startContentLoading];
-    if (self.fetchMode != BLFetchModeOfflineOnly) {
-        [self fetchOfflineData:NO];
-    }
-    [self runRequest];
-}
-
-- (void) startContentRefreshing {
-    [super startContentRefreshing];
-    [self runRequest];
+-(void)contentLoaded:(NSError *)error {
+    [super contentLoaded:error];
+    [self loadNextPageIfAutoAdvance];
 }
 
 - (BOOL) refreshContentIfPossible {
@@ -252,6 +164,8 @@
     if (self.itemsChangedBlock) {
         self.itemsChangedBlock (self.dataStructure);
     }
+    [self updatePagingFlagsForListSize];
+    [self loadNextPageIfAutoAdvance];
 }
 
 - (BLDataStructure *) dataStructureFromFetchResult:(BLBaseFetchResult *) fetchResult {
@@ -270,30 +184,9 @@
     return [BLDataStructure dataStructureWithFetchResult:fetchResult];
 }
 
-#pragma mark - Abstract Methods
-- (BLBaseFetchResult * __nonnull) createFetchResultFor:(id)object {
-    if (self.fetchResultBlock) {
-        return self.fetchResultBlock(object, NO);
-    }
-    return nil; // For subclassing
-}
-
-- (BLBaseFetchResult * __nonnull) createFetchResultForLocalObject:(id)object {
-    if (self.fetchResultBlock) {
-        return self.fetchResultBlock(object, YES);
-    }
-    return nil; // For subclassing
-}
-
 #pragma mark -
--(NSString *)description {
-    NSString * fetchMode = @"OnlineAndOffline";
-    if (self.fetchMode == BLFetchModeOnlineOnly) {
-        fetchMode = @"Online";
-    } else if (self.fetchMode == BLFetchModeOfflineOnly) {
-        fetchMode = @"Offline";
-    }
-    return [NSString stringWithFormat:@"%@\nMode: %@\nFetch: %@\nDataStructure: %@\nPaging: %@", [super description], fetchMode, [self.fetch description], [self.dataStructure description], [self.paging description]];
+-(NSString *)debugDescription {
+    return [NSString stringWithFormat:@"%@\nDataStructure: %@\nPaging: %@", [super debugDescription], [self.dataStructure debugDescription], [self.paging debugDescription]];
 }
 
 @end

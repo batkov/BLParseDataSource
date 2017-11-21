@@ -87,9 +87,8 @@
     if (self.stateChangedBlock) {
         self.stateChangedBlock(self.state);
     }
-    if ([self.delegate respondsToSelector:@selector(dataSource:stateChanged:)]) {
-        [self.delegate dataSource:self stateChanged:self.state];
-    }
+    
+    [self.delegate dataSource:self stateChanged:self.state];
 }
 
 - (void)startContentLoading {

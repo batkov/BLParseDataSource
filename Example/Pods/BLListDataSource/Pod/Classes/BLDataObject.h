@@ -27,21 +27,27 @@
 @protocol BLDataObject <NSObject>
 
 // Unique string that differ this object from others
-- (NSString*) objectId;
+- (NSString* __nullable) objectId;
 
 // Creation date
-- (NSDate *) createdAt;
+- (NSDate * __nullable) createdAt;
 
 // Date of last update
-- (NSDate *) updatedAt;
+- (NSDate * __nullable) updatedAt;
 
 @optional
 // If this object is some kind of proxy you can
 // save original object / object by defining these methods
-- (id) objectToStore;
-- (NSArray *) objectsToStore;
+- (id __nonnull) objectToStore;
+- (NSArray * __nonnull) objectsToStore;
 
-// Methods to operate
+// Return NO if object need to be fetched before use
+// If not implemented consider isDataAvailable as YES
+- (BOOL) isDataAvailable;
+
+// Similar to 'objectToStore' can customize object to be fetched
+- (id __nonnull) objectToFetch;
+- (NSArray * __nonnull) objectsToFetch;
 
 
 @end

@@ -3,4 +3,5 @@ use_frameworks!
 
 target 'BLParseFetch_Example' do
   pod 'BLParseFetch', :path => '../'
+  pod 'BLListDataSource', :git => 'https://github.com/batkov/BLListDataSource'
 end

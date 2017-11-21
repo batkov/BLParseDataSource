@@ -29,11 +29,11 @@
 
 @interface BLDataSource : NSObject
 
-@property (weak, nonatomic) id <BLDataSourceDelegate> delegate;
-@property (copy, nonatomic) BLDataSourceStateBlock stateChangedBlock;
+@property (weak, nonatomic, nullable) id <BLDataSourceDelegate> delegate;
+@property (copy, nonatomic, nullable) BLDataSourceStateBlock stateChangedBlock;
 
 @property (assign, nonatomic, readonly) BLDataSourceState state;
-@property (strong, nonatomic, readonly) NSError *lastError;
+@property (strong, nonatomic, readonly, nullable) NSError *lastError;
 
 - (BOOL)hasContent;
 - (void)startContentLoading;
@@ -43,6 +43,5 @@
 @end
 
 @protocol BLDataSourceDelegate <NSObject>
-@optional
-- (void)dataSource:(BLDataSource *)dataSource stateChanged:(BLDataSourceState)state;
+- (void)dataSource:(BLDataSource * _Nonnull)dataSource stateChanged:(BLDataSourceState)state;
 @end

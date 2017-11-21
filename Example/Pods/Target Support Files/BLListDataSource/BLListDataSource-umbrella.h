@@ -15,6 +15,8 @@
 #import "BLDataSource+Subclass.h"
 #import "BLDataSource.h"
 #import "BLFetchDataSource.h"
+#import "BLInteractiveDataSource+Subclass.h"
+#import "BLInteractiveDataSource.h"
 #import "BLListDataSource+Subclass.h"
 #import "BLListDataSource.h"
 #import "BLReadableListDataSource.h"
